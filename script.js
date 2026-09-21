@@ -26,17 +26,10 @@ const fields = {
   eraTo: document.getElementById("eraTo"),
   category: document.getElementById("category"),
   description: document.getElementById("description"),
-  status: document.getElementById("status"),
   color: document.getElementById("color")
 };
 
 let topics = migrateTopics(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
-
-const statusNames = {
-  pending: "Pendiente",
-  progress: "En progreso",
-  done: "Dominado"
-};
 
 const monthNames = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 
@@ -206,7 +199,6 @@ function updateCategoryFilter() {
 function render() {
   const query = document.getElementById("searchInput").value.toLowerCase().trim();
   const category = document.getElementById("categoryFilter").value;
-  const status = document.getElementById("statusFilter").value;
 
   let filtered = topics.filter(topic => {
     const matchesQuery =
@@ -215,9 +207,8 @@ function render() {
       (topic.category || "").toLowerCase().includes(query);
 
     const matchesCategory = category === "all" || topic.category === category;
-    const matchesStatus = status === "all" || topic.status === status;
 
-    return matchesQuery && matchesCategory && matchesStatus;
+    return matchesQuery && matchesCategory;
   });
 
   filtered.sort((a, b) => sortValue(a) - sortValue(b));
@@ -233,7 +224,6 @@ function topicCardHTML(topic) {
     ${topic.description ? `<p>${escapeHTML(topic.description)}</p>` : ""}
     <div class="card-tags">
       ${topic.category ? `<span class="badge">${escapeHTML(topic.category)}</span>` : ""}
-      <span class="badge">${statusNames[topic.status]}</span>
     </div>
     <div class="card-actions">
       <button class="edit-btn" data-edit="${topic.id}">Editar →</button>
@@ -334,7 +324,6 @@ function openModal(topic = null) {
 
     fields.category.value = topic.category;
     fields.description.value = topic.description;
-    fields.status.value = topic.status;
     fields.color.value = topic.color;
   } else {
     document.getElementById("modalTitle").textContent = "Añadir tema";
@@ -345,7 +334,6 @@ function openModal(topic = null) {
     fields.era.value = "DC";
     fields.eraFrom.value = "DC";
     fields.eraTo.value = "DC";
-    fields.status.value = "pending";
     fields.color.value = "#7c5cff";
   }
 
@@ -377,7 +365,7 @@ form.addEventListener("submit", event => {
     centuryFrom: null, eraFrom: null, centuryTo: null, eraTo: null,
     category: fields.category.value.trim(),
     description: fields.description.value.trim(),
-    status: fields.status.value,
+    status: "pending",
     color: fields.color.value,
     progress: 0
   };
@@ -462,7 +450,6 @@ summaryList.addEventListener("click", event => {
 
 document.getElementById("searchInput").addEventListener("input", render);
 document.getElementById("categoryFilter").addEventListener("change", render);
-document.getElementById("statusFilter").addEventListener("change", render);
 
 document.getElementById("exportBtn").addEventListener("click", () => {
   const blob = new Blob([JSON.stringify(topics, null, 2)], {
