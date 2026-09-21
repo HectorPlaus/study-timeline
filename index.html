@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Timeline</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-spacer"></div>
+  </header>
+
+  <main>
+    <div class="toolbar-row">
+      <div class="view-toggle">
+        <button id="viewTimelineBtn" class="view-btn active" data-view="timeline">Timeline</button>
+        <button id="viewSummaryBtn" class="view-btn" data-view="summary">Resumen</button>
+      </div>
+
+      <div class="actions actions-bar">
+        <button id="importBtn" class="btn secondary">Importar</button>
+        <button id="exportBtn" class="btn secondary">Exportar</button>
+        <button id="addBtn" class="btn primary">＋ Añadir tema</button>
+        <input id="fileInput" type="file" accept=".json" hidden>
+      </div>
+    </div>
+
+    <section class="toolbar">
+      <div class="search">
+        <span>⌕</span>
+        <input id="searchInput" type="search" placeholder="Buscar temas...">
+      </div>
+      <select id="categoryFilter">
+        <option value="all">Todas las categorías</option>
+      </select>
+      <select id="statusFilter">
+        <option value="all">Todos los estados</option>
+        <option value="pending">Pendiente</option>
+        <option value="progress">En progreso</option>
+        <option value="done">Dominado</option>
+      </select>
+    </section>
+
+    <section id="timelineView" class="timeline-wrapper">
+      <div id="emptyState" class="empty">
+        <div class="empty-icon">✦</div>
+        <h2>Tu timeline está vacío</h2>
+        <p>Añade tu primer tema para empezar a organizar el estudio.</p>
+        <button class="btn primary" id="emptyAddBtn">＋ Añadir tema</button>
+      </div>
+      <div id="timeline" class="timeline"></div>
+    </section>
+
+    <section id="summaryView" class="summary-wrapper hidden">
+      <div id="summaryEmptyState" class="empty">
+        <div class="empty-icon">✦</div>
+        <h2>No hay temas que mostrar</h2>
+        <p>Añade tu primer tema o ajusta los filtros de búsqueda.</p>
+      </div>
+      <div id="summaryList"></div>
+    </section>
+  </main>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h2 id="modalTitle">Añadir tema</h2>
+          <p>Define los datos del bloque de estudio.</p>
+        </div>
+        <button type="button" id="closeModal" class="icon-btn">×</button>
+      </div>
+
+      <form id="topicForm">
+        <input type="hidden" id="topicId">
+
+        <label>
+          Título
+          <input id="title" required maxlength="100" placeholder="Ej. Constitución Española">
+        </label>
+
+        <label>
+          Categoría
+          <input id="category" maxlength="100" placeholder="Ej. Derecho">
+        </label>
+
+        <label>
+          Precisión de la fecha
+          <select id="dateType">
+            <option value="exact">Fecha exacta</option>
+            <option value="century">Siglo</option>
+            <option value="yearRange">Entre dos años</option>
+            <option value="centuryRange">Entre dos siglos</option>
+          </select>
+        </label>
+
+        <div class="date-fields" data-type="exact">
+          <div class="grid-3">
+            <label>
+              Año
+              <input id="year" type="number" step="1" placeholder="Ej. -218 o 1978">
+            </label>
+            <label>
+              Mes <span class="optional">(opc.)</span>
+              <select id="month">
+                <option value="">—</option>
+                <option value="1">Enero</option>
+                <option value="2">Febrero</option>
+                <option value="3">Marzo</option>
+                <option value="4">Abril</option>
+                <option value="5">Mayo</option>
+                <option value="6">Junio</option>
+                <option value="7">Julio</option>
+                <option value="8">Agosto</option>
+                <option value="9">Septiembre</option>
+                <option value="10">Octubre</option>
+                <option value="11">Noviembre</option>
+                <option value="12">Diciembre</option>
+              </select>
+            </label>
+            <label>
+              Día <span class="optional">(opc.)</span>
+              <input id="day" type="number" min="1" max="31" step="1">
+            </label>
+          </div>
+        </div>
+
+        <div class="date-fields hidden" data-type="century">
+          <div class="grid-2">
+            <label>
+              Siglo
+              <input id="century" type="number" min="1" step="1" placeholder="Ej. 3">
+            </label>
+            <label>
+              Era
+              <select id="era">
+                <option value="DC">d.C.</option>
+                <option value="AC">a.C.</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="date-fields hidden" data-type="yearRange">
+          <div class="grid-2">
+            <label>
+              Año desde
+              <input id="yearFrom" type="number" step="1" placeholder="Ej. -300">
+            </label>
+            <label>
+              Año hasta
+              <input id="yearTo" type="number" step="1" placeholder="Ej. -200">
+            </label>
+          </div>
+        </div>
+
+        <div class="date-fields hidden" data-type="centuryRange">
+          <div class="grid-2">
+            <label>
+              Siglo desde
+              <input id="centuryFrom" type="number" min="1" step="1" placeholder="Ej. 3">
+            </label>
+            <label>
+              Era desde
+              <select id="eraFrom">
+                <option value="DC">d.C.</option>
+                <option value="AC">a.C.</option>
+              </select>
+            </label>
+          </div>
+          <div class="grid-2">
+            <label>
+              Siglo hasta
+              <input id="centuryTo" type="number" min="1" step="1" placeholder="Ej. 1">
+            </label>
+            <label>
+              Era hasta
+              <select id="eraTo">
+                <option value="AC">a.C.</option>
+                <option value="DC">d.C.</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <p class="hint">Usa números negativos para años antes de Cristo. Ej: <strong>-450000</strong> para "hace 450.000 años", <strong>-218</strong> para "218 a.C.". Si no tienes clara la fecha exacta, usa "Siglo" o un rango.</p>
+
+        <label>
+          Descripción
+          <textarea lang="ca" id="description" rows="10" maxlength="3500"
+            placeholder="Conceptos importantes, artículos, apuntes..."></textarea>
+        </label>
+
+        <div class="grid-2">
+          <label>
+            Estado
+            <select id="status">
+              <option value="pending">Pendiente</option>
+              <option value="progress">En progreso</option>
+              <option value="done">Dominado</option>
+            </select>
+          </label>
+
+          <label>
+            Color
+            <input id="color" type="color" value="#7c5cff">
+          </label>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="deleteBtn" class="btn danger hidden">Eliminar</button>
+          <div>
+            <button type="button" id="cancelBtn" class="btn secondary">Cancelar</button>
+            <button type="submit" class="btn primary">Guardar tema</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
