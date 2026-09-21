@@ -139,9 +139,10 @@ main {
 
 .toolbar {
   display: grid;
-  grid-template-columns: 1fr 220px 190px;
+  grid-template-columns: 1fr 220px;
   gap: 12px;
   margin-bottom: 18px;
+  align-items: stretch;
 }
 
 .search {
@@ -152,6 +153,13 @@ main {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
+  min-height: 42px;
+}
+
+#categoryFilter {
+  min-height: 42px;
+  height: 100%;
+  align-self: stretch;
 }
 
 .search input {
